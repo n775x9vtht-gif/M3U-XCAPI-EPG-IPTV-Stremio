@@ -1,9 +1,12 @@
 {
   "version": 2,
   "builds": [
-    { "src": "serverless.js", "use": "@vercel/node" }
+    { "src": "serverless.js", "use": "@vercel/node" },
+    { "src": "configure.html", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/.*", "dest": "/serverless.js" }
+    { "src": "^/$", "dest": "/configure.html" },
+    { "src": "^/configure(?:\\.html)?$", "dest": "/configure.html" },
+    { "src": "/(.*)", "dest": "/serverless.js" }
   ]
 }
