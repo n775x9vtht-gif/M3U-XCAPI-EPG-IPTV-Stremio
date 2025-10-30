@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IPTV Add-on Configurator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 600px;
+        line-height: 1.5;
+      }
+      h1 { text-align: center; }
+      label { display: block; margin-top: 1rem; }
+      input, select, button {
+        width: 100%;
+        padding: 0.5rem;
+        margin-top: 0.3rem;
+      }
+      button {
+        margin-top: 1.5rem;
+        background: #4f46e5;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover { background: #4338ca; }
+    </style>
+  </head>
+  <body>
+    <h1>Stremio IPTV Configuration</h1>
+    <p>Select mode and enter your playlist details.</p>
+
+    <label for="mode">Mode</label>
+    <select id="mode">
+      <option value="m3u">Direct M3U / EPG</option>
+      <option value="xtream">Xtream Codes API</option>
+    </select>
+
+    <div id="m3u-fields">
+      <label for="m3uUrl">M3U Playlist URL</label>
+      <input type="text" id="m3uUrl" placeholder="http://.../playlist.m3u" />
+      <label for="epgUrl">EPG (XMLTV) URL (optional)</label>
+      <input type="text" id="epgUrl" placeholder="http://.../guide.xml" />
+    </div>
+
+    <div id="xtream-fields" style="display:none;">
+      <label for="xtreamUrl">Xtream API URL</label>
+      <input type="text" id="xtreamUrl" placeholder="http://ip:port" />
+      <label for="xtreamUser">Username</label>
+      <input type="text" id="xtreamUser" />
+      <label for="xtreamPass">Password</label>
+      <input type="text" id="xtreamPass" />
+    </div>
+
+    <button id="generate">Generate Manifest URL</button>
+    <p id="result"></p>
+
+    <script>
+      const mode = document.getElementById("mode");
+      const m3uFields = document.getElementById("m3u-fields");
+      const xtreamFields = document.getElementById("xtream-fields");
+      const result = document.getElementById("result");
+      const button = document.getElementById("generate");
+
+      mode.addEventListener("change", () => {
+        const isM3u = mode.value === "m3u";
+        m3uFields.style.display = isM3u ? "block" : "none";
+        xtreamFields.style.display = isM3u ? "none" : "block";
+      });
+
+      button.addEventListener("click", () => {
+        let url = "";
+        if (mode.value === "m3u") {
+          const m3u = encodeURIComponent(document.getElementById("m3uUrl").value);
+          const epg = encodeURIComponent(document.getElementById("epgUrl").value);
+          if (!m3u) return alert("Please enter your M3U URL");
+          url = `${window.location.origin}/manifest.json?m3uUrl=${m3u}${epg ? "&epgUrl=" + epg : ""}`;
+        } else {
+          const host = encodeURIComponent(document.getElementById("xtreamUrl").value);
+          const user = encodeURIComponent(document.getElementById("xtreamUser").value);
+          const pass = encodeURIComponent(document.getElementById("xtreamPass").value);
+          if (!host || !user || !pass) return alert("Please fill all Xtream fields");
+          url = `${window.location.origin}/manifest.json?xtreamUrl=${host}&user=${user}&pass=${pass}`;
+        }
+        result.innerHTML = `<b>Manifest URL:</b><br/><code>${url}</code>`;
+      });
+    </script>
+  </body>
+</html>
